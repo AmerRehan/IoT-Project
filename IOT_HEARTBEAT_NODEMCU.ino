@@ -4,7 +4,7 @@
 #include <LiquidCrystal_I2C.h> // Library for LCD
 LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2);
  
-const int sampleWindow = 50;                              // Sample window width in mS (50 mS = 20Hz)
+const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
 unsigned int sample;
  
 #define SENSOR_PIN A0
@@ -12,7 +12,7 @@ unsigned int sample;
 #define PIN_MODERATE D4
 #define PIN_LOUD D5
  
-String apiKey = "14K8UL2QEK8BTHN6"; // Enter your Write API key from ThingSpeak
+String apiKey = "AISG2KW6EGONWHML"; // Enter your Write API key from ThingSpeak
 const char *ssid = "SIEMENS";     // replace with your wifi ssid and wpa2 key
 const char *pass = "$i#m#n$@CAM";
 char ip[] = "184.106.153.149";
