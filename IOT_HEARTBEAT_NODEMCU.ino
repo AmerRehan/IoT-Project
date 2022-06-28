@@ -4,7 +4,7 @@
 //#include <LiquidCrystal_I2C.h> // Library for LCD
 //LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2);
  
-const int sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
+const int sampleWindow = 1200; // Sample window width in mS (1200 mS = 0.833 Hz)
 unsigned int sample;
  
 #define SENSOR_PIN A0
@@ -122,7 +122,7 @@ void loop ()  {
  
   }
    
-  if (client.connect(server, 80)){ // "184.106.153.149" or api.thingspeak.com
+  if(client.connect(server, 80)){ // "184.106.153.149" or api.thingspeak.com
   
     String postStr = apiKey;
    
@@ -143,8 +143,8 @@ void loop ()  {
     client.print(postStr);
    
   }
-    client.stop();
+  client.stop();
  
-   delay(200);      // thingspeak needs minimum 15 sec delay between updates.
+  delay(200);      // thingspeak needs minimum 15 sec delay between updates.
    //lcd.clear();
 }
