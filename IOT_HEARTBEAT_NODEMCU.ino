@@ -1,150 +1,38 @@
-#include <ESP8266WiFi.h>
-#include <Wire.h>
- 
-//#include <LiquidCrystal_I2C.h> // Library for LCD
-//LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x27, 16, 2);
- 
-const int sampleWindow = 1200; // Sample window width in mS (1200 mS = 0.833 Hz)
-unsigned int sample;
- 
-#define SENSOR_PIN A0
-#define PIN_QUIET D3
-#define PIN_MODERATE D4
-#define PIN_LOUD D5
- 
-String apiKey = "AISG2KW6EGONWHML"; // Enter your Write API key from ThingSpeak
-const char *ssid = "SIEMENS";     // replace with your wifi ssid and wpa2 key
-const char *pass = "$i#m#n$@CAM";
-char ip[] = "184.106.153.149";
+#include<ThingSpeak.h>
+#include<ESP8266WiFi.h>
+
+
+
+int raw_Value = A0;
+char* ssid = "SIEMENS";   // wifi name
+char* pass = "$i#m#n$@CAM";  // wifi pass
 WiFiClient client;
- 
-void setup ()  {
- 
-  pinMode (SENSOR_PIN, INPUT); // Set the signal pin as input  
-  pinMode(PIN_QUIET, OUTPUT);
-  pinMode(PIN_MODERATE, OUTPUT);
-  pinMode(PIN_LOUD, OUTPUT); 
- 
-  digitalWrite(PIN_QUIET, LOW);
-  digitalWrite(PIN_MODERATE, LOW);
-  digitalWrite(PIN_LOUD, LOW);
+long id = 1781919;       // channel id
+char* api = "AISG2KW6EGONWHML";   // write api key
+char ip[] = "184.106.153.149";
+
+void setup() {
   
-  Serial.begin(115200);
+  Serial.begin(9600);
+  pinMode(raw_Value, INPUT);
+  Serial.println("Connecting to Wifi");
+  WiFi.begin(ssid,pass);
   
-  //lcd.init();
- 
-  // Turn on the backlight.
-  //lcd.backlight();
- 
-  Serial.println("Connecting to ");
-  Serial.println(ssid);
-  
-  //lcd.setCursor(0, 0);
-  //lcd.print("Connecting to...");
- 
-  //lcd.setCursor(0, 1);
-  //lcd.print(ssid);
- 
-  WiFi.begin(ssid, pass);
- 
-  while (WiFi.status() != WL_CONNECTED){
-   
-    delay(500);
+  while(WiFi.status()!=WL_CONNECTED){
+    
     Serial.print(".");
+    delay(500);
   }
+  Serial.println("WiFi Connected");
+  ThingSpeak.begin(client);
+}
+
+void loop() {
   
-  Serial.println("");
-  Serial.println("WiFi connected");
-    
-   //lcd.clear();
-   //lcd.setCursor(0, 0);
-   //lcd.print("Connected...");
-   //delay(4000);
-   //lcd.clear();
-}  
- 
-void loop ()  {
- 
-   unsigned long startMillis= millis();                   // Start of sample window
-   float peakToPeak = 0;                                  // peak-to-peak level
- 
-   unsigned int signalMax = 0;                            //minimum value
-   unsigned int signalMin = 1024;                         //maximum value
- 
-                                                          // collect data for 50 mS
-   while (millis() - startMillis < sampleWindow){
-    
-      sample = analogRead(SENSOR_PIN);                    //get reading from microphone
-      if (sample < 1024){                                 // toss out spurious readings
-       
-         if (sample > signalMax){
-          
-            signalMax = sample;                           // save just the max levels
-         }
-         else if (sample < signalMin){
-          
-            signalMin = sample;                           // save just the min levels
-         }
-      }
-   }
- 
-   peakToPeak = signalMax - signalMin;                  // max - min = peak-peak amplitude
-   int db = map(peakToPeak,20,900,49.5,90);             //calibrate for deciBels
- 
-  //lcd.setCursor(0, 0);
-  //lcd.print("Loudness: ");
-  //lcd.print(db);
-  //lcd.print("dB");
-  
-  if (db <= 60){
-   
-    //lcd.setCursor(0, 1);
-    //lcd.print("Level: Quite");
-    digitalWrite(PIN_QUIET, HIGH);
-    digitalWrite(PIN_MODERATE, LOW);
-    digitalWrite(PIN_LOUD, LOW);
-  }
-  else if (db > 60 && db<85){
-   
-    //lcd.setCursor(0, 1);
-    //lcd.print("Level: Moderate");
-    digitalWrite(PIN_QUIET, LOW);
-    digitalWrite(PIN_MODERATE, HIGH);
-    digitalWrite(PIN_LOUD, LOW);
-  }
-  else if (db>=85){
-   
-    //lcd.setCursor(0, 1);
-    //lcd.print("Level: High");
-    digitalWrite(PIN_QUIET, LOW);
-    digitalWrite(PIN_MODERATE, LOW);
-    digitalWrite(PIN_LOUD, HIGH);
- 
-  }
-   
-  if(client.connect(server, 80)){ // "184.106.153.149" or api.thingspeak.com
-  
-    String postStr = apiKey;
-   
-    postStr += "&field1=";
-   
-    postStr += String(db);
-   
-    postStr += "r\n";
-    
-    client.print("POST /update HTTP/1.1\n");
-    client.print("Host: api.thingspeak.com\n");
-    client.print("Connection: close\n");
-    client.print("X-THINGSPEAKAPIKEY: " + apiKey + "\n");
-    client.print("Content-Type: application/x-www-form-urlencoded\n");
-    client.print("Content-Length: ");
-    client.print(postStr.length());
-    client.print("\n\n");
-    client.print(postStr);
-   
-  }
-  client.stop();
- 
-  delay(200);      // thingspeak needs minimum 15 sec delay between updates.
-   //lcd.clear();
+  if(client.connect(ip,80)){
+    Serial.print(raw_Value);
+    ThingSpeak.setField(1,raw_Value);
+    ThingSpeak.writeFields(id,api);
+    }
+  delay(500);
 }
