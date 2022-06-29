@@ -1,8 +1,6 @@
 #include<ThingSpeak.h>
 #include<ESP8266WiFi.h>
 
-
-
 int raw_Value = A0;
 char* ssid = "SIEMENS";   // wifi name
 char* pass = "$i#m#n$@CAM";  // wifi pass
