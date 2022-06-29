@@ -29,6 +29,8 @@ void setup() {
 
 void loop() {
   
+  raw_Value = A0;
+  
   if(client.connect(ip,80)){
     Serial.print(raw_Value);
     ThingSpeak.setField(1,raw_Value);
