@@ -1,2 +1,2 @@
-# IoT-Project
-Related to heart beat diagram (to be displayed on ThingSpeak)
+
+We have to detect heartbeat using suitable sensor and diplay the same on cloud.
